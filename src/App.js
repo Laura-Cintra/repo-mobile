@@ -4,7 +4,7 @@ import { fetchPosts } from "./api/posts"; // Importa a função para buscar os p
 
 export default function App() {
     // useQuery é um hook principal do Tanstack Query
-    const { data, isLoading, error , isError } = useQuery({
+    const { data, isLoading, error, isError } = useQuery({
         queryKey: ['posts'], // chave única para identificar a consulta
         queryFn: fetchPosts, // função que busca os dados (faz a requisição)
     });
@@ -13,4 +13,43 @@ export default function App() {
     if(isLoading) {
         return <ActivityIndicator size="large" style={styles.center}/>;
     }
+
+    // Exibir uma mensagem de erro, se houver falha na requisição
+    if(isError){
+        return(
+            <View style={styles.center}>
+                <Text>Erro ao buscar dados</Text>
+                <Text>{error.message}</Text>
+            </View>
+        )
+    }
+
+    return(
+        <FlatList
+            data={data}
+            keyExtractor={(item)=>item.id.toString()}
+            renderItem={({item})=>(
+                <View style={styles.item}>
+                    <Text style={styles.title}>{item.name}</Text>
+                </View>
+            )}
+        />
+    )
 }
+
+const styles = StyleSheet.create({
+    center:{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    item: {
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc'
+    },
+    title: {
+        fontWeight: 'bold',
+        marginBottom: 4
+    }
+});

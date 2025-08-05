@@ -1,10 +1,10 @@
-import { View, Text, FlatList, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, FlatList, StyleSheet, ActivityIndicator, Image } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { fetchPosts } from "./api/posts"; // Importa a função para buscar os posts
 
 export default function App() {
     // useQuery é um hook principal do Tanstack Query
-    const { data, isLoading, error, isError } = useQuery({
+    const { data, isLoading, error, isError, isFetching, refetch } = useQuery({
         queryKey: ['posts'], // chave única para identificar a consulta
         queryFn: fetchPosts, // função que busca os dados (faz a requisição)
     });
@@ -27,9 +27,12 @@ export default function App() {
     return(
         <FlatList
             data={data}
-            keyExtractor={(item)=>item.id.toString()}
+            // keyExtractor={(item)=>item.id.toString()}
+            refreshing={isFetching} // Mostra o spiner durante o refetch
+            onRefresh={refetch} // Chamada automática do refetch ao puxar
             renderItem={({item})=>(
                 <View style={styles.item}>
+                    <Image source={{uri: item.avatar}} width={200} height={200}/>
                     <Text style={styles.title}>{item.name}</Text>
                 </View>
             )}

@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
+import { auth } from '../services/firebaseConfig';
 
 export default function LoginScreen() {
   // Estados para armazenar os valores digitados
@@ -34,9 +36,32 @@ export default function LoginScreen() {
       Alert.alert('Atenção', 'Preencha todos os campos!');
       return;
     }
-    Alert.alert('Sucesso ao logar', `Usuário logado com sucesso!`);
-    // Aqui você poderia fazer um fetch/axios para enviar ao backend
+    // Função para realizar o login
+    signInWithEmailAndPassword(auth, email, senha)
+      .then(async(userCredential) => {
+        // armazenando as credenciais do usuário
+        const user = userCredential.user
+        await AsyncStorage.setItem('@user', JSON.stringify(user))
+        router.push('/HomeScreen')
+      })
+      .catch((error) => {
+        const errorCode = error.code
+        const errorMessage = error.message
+        console.log("Error Messagem: ", errorMessage);
+      })
   };
+
+  // Função para enviar o e-mail de reset de senha para o usuário
+  const esqueceuSenha = () => {
+    if(!email){
+      alert("Digite o email para recuperar a senha")
+      return
+    }
+    sendPasswordResetEmail(auth, email)
+      .then(() => { alert("Enviado o email de recuperação") })
+      .catch((error) => console.log("Erro ao enviar email ", error.message))
+        alert("Erro ao enviar email. Verifique se o email está correto.")
+  }
 
   return (
     <View style={styles.container}>
@@ -70,6 +95,9 @@ export default function LoginScreen() {
       </TouchableOpacity>
 
       <Link href="CadastrarScreen" style={{marginTop:20,color:'white',marginLeft:150}}>Cadastre-se</Link>
+      
+      {/* Botão */}
+      <Text style={{color: 'white', justifyContent: 'center', marginLeft: 130, cursor: 'pointer'}} onPress={esqueceuSenha}>Esqueceu a senha</Text>
     </View>
   );
 }

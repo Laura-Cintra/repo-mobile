@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../services/firebaseConfig';
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function CadastroScreen() {
@@ -73,6 +73,8 @@ export default function CadastroScreen() {
       <TouchableOpacity style={styles.botao} onPress={handleCadastro}>
         <Text style={styles.textoBotao}>Cadastrar</Text>
       </TouchableOpacity>
+
+      <Link href="/" style={{marginTop:20,color:'white',marginLeft:150}}>Fazer login</Link>
     </View>
   );
 }

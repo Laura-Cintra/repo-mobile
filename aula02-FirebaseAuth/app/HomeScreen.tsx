@@ -44,6 +44,7 @@ export default function HomeScreen() {
             <Text>Seja bem-vindo a Tela Inicial da Aplicação</Text>
             <Button title="Sair da Conta" onPress={realizarLogoff}/>
             <Button title="Exluir conta" color='red' onPress={excluirConta}/>
+            <Button title="Alterar Senha" onPress={() => router.push("/AlterarSenha")}/>
         </SafeAreaView>
     )
 }

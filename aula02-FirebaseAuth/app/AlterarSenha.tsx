@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
 import { auth } from '../services/firebaseConfig'
 import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function CadastroScreen() {
+export default function AlterarSenhaScreen() {
   // Estados para armazenar os valores digitados
   const [novaSenha, setNovaSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
@@ -14,7 +13,7 @@ export default function CadastroScreen() {
   const router = useRouter() // Hook para navegação
 
   // Função para realizar update de senha
-  const handleAlterarSenha = () => {
+  const handleAlterarSenha = async() => {
     if (!novaSenha || !confirmarSenha || !senhaAtual) {
       Alert.alert('Atenção', 'Preencha todos os campos!');
       return;
@@ -35,17 +34,24 @@ export default function CadastroScreen() {
             Alert.alert("Erro","Nenhum usário logado.")
             return
         }
-        //Cria as credenciais com e-mail e senha atual para reatenticar
-        
-    }
+        //Cria as credenciais com e-mail e senha atual para reautenticar
+        const credencial = EmailAuthProvider.credential(user.email, senhaAtual)
+        await reauthenticateWithCredential(user, credencial)
 
-    
+        //Após reautenticar, vamos alterar senha - atualização da senha no Firebase Auth
+        await updatePassword(user, novaSenha)
+        Alert.alert("Sucesso", "Senha alterada com sucesso!")
+        router.push('/HomeScreen')
+    }catch(error){
+      console.log("Erro ao alterar senha: ", error);
+      Alert.alert("Erro ao alterar senha!");
+      
     }
-    //Atualização da senha no Firebase Auth
+  }
 
     return (
       <View style={styles.container}>
-        <Text style={styles.titulo}>Criar Conta</Text>
+        <Text style={styles.titulo}>Alterar Senha</Text>
 
         {/* Campo Nome */}
         <TextInput

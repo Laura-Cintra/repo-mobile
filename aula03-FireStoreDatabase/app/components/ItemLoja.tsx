@@ -1,14 +1,50 @@
-import { StyleSheet, View, Text, Pressable } from "react-native";
+import { StyleSheet, View, Text, Pressable, Alert } from "react-native";
 import { AntDesign, MaterialIcons } from '@expo/vector-icons'
+import { useEffect, useState } from "react";
+import { doc, updateDoc, db, deleteDoc } from '../../services/firebaseConfig'
 
-export default function ItemLoja(){
+export default function ItemLoja(props: any){
+    const[ isChecked, setIsChecked ] = useState(props.isChecked)
+
+    const updateIsChecked = async ()=>{
+            const itemRef = doc(db,'items',props.id)
+            
+            await updateDoc(itemRef,{
+                isChecked:isChecked
+            })
+    }
+
+    const deletarItem = async()=>{
+        Alert.alert("Exclusão","Deseja realmente excluir?",[
+            {
+                text:'Cancelar',style:'cancel'
+            },
+            {   text:"Sim",
+                style:'destructive',
+                onPress: async()=>(
+                    await deleteDoc(doc(db,'items',props.id)),
+                    Alert.alert("Exclusão efetuada","Produto excluído com sucesso.")
+                )
+            }
+        ])
+    }
+
+    useEffect(()=>{
+        updateIsChecked()
+    },[isChecked]) // fica escutando a mudança do estado
+
     return(
         <View style={styles.container}>
-            <Pressable>
-                <AntDesign name='checkcircleo' color='black' size={24}/>
+            <Pressable onPress={()=>setIsChecked(!isChecked)}>
+                {isChecked?( // isChecked é verdadeiro?
+                    <AntDesign name="checkcircle" color='black' size={24}/>
+                ):(
+                    <AntDesign name="checkcircleo" color='black' size={24}/>
+                )
+                }
             </Pressable>
-            <Text style={styles.title}>Mouse Gamer</Text>
-            <Pressable>
+            <Text style={styles.title}>{props.title}</Text>
+            <Pressable onPress={deletarItem}>
                 <MaterialIcons name='delete' size={24} color='back'/>
             </Pressable>
         </View>

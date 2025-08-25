@@ -1,21 +1,29 @@
-import { Text,Button,Alert, TextInput, StyleSheet } from "react-native";
+import { Text,Button,Alert, TextInput, StyleSheet, ActivityIndicator, FlatList, KeyboardAvoidingView, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 
-import {auth} from '../services/firebaseConfig'
 import { deleteUser } from "firebase/auth";
+import { useEffect, useState } from "react";
+import { auth, collection, addDoc, db, getDocs } from "../services/firebaseConfig";
 import ItemLoja from "./components/ItemLoja";
-import { useState } from "react";
-import { collection, addDoc, db } from "../services/firebaseConfig";
 
 export default function HomeScreen() {
     const [ title, setTitle ] = useState('');
     const router = useRouter()//Hook de navegação entre telas
+    interface Item{
+        id:String;
+        title:String;
+        isChecked:boolean;
+    }
+
+    const [ listaItems, setListaItems ] = useState<Item[]>([])
+
     const realizarLogoff = async()=>{
         await AsyncStorage.removeItem('@user')
         router.push('/')
     }
+
     const excluirConta = () =>{
         Alert.alert(
             "Confirmar Exclusão",
@@ -58,20 +66,62 @@ export default function HomeScreen() {
         }
     }
 
+    const buscarItems = async() => {
+        try{
+            const querySnapshot = await getDocs(collection(db, "items"));
+            const items: any[] = [];
+            querySnapshot.forEach((item) => {
+                items.push({
+                    ...item.data(),
+                    id: item.id
+                })
+            })
+            // console.log("Itens encontrados: ", items)
+            setListaItems(items)//Atualiza o estado com as informações do array
+        } catch (error) {
+            console.error("Erro ao buscar os dados: ", error);
+        }
+    }
+
+    useEffect(()=>{
+        buscarItems()
+    },[listaItems])
+
     return (
         <SafeAreaView style={styles.container}>
+            <KeyboardAvoidingView // componente que ajusta automaticamente o layout
+                style={styles.container}
+                behavior={Platform.OS==='ios'?'padding':'height'} // No IOS é utilizado padding pra fazer esse ajuste, e no android o height
+                keyboardVerticalOffset={20} // Descola o conteúdo na vertical em 20 pixels
+            >
+
             <Text>Seja bem-vindo a Tela Inicial da Aplicação</Text>
             <Button title="Sair da Conta" onPress={realizarLogoff}/>
             <Button title="Exluir conta" color='red' onPress={excluirConta}/>
             <Button title="Alterar Senha" onPress={() => router.push("/AlterarSenha")}/>
-            <ItemLoja />
-            <ItemLoja />
-            <ItemLoja />
+
+            {listaItems.length<=0?(
+                <ActivityIndicator />
+            ):(
+                <FlatList 
+                    data={listaItems}
+                    renderItem={({ item }) => (
+                       <ItemLoja 
+                        title={item.title} 
+                        isChecked={item.isChecked}
+                        id={item.id}
+                       />
+                    )}
+                />
+            )}
+
             <TextInput  placeholder="Digite o nome do produto" 
                         style={styles.input}
                         value={title}
                         onChangeText={(value) => setTitle(value)}
                         onSubmitEditing={salvarItem}/>
+
+            </KeyboardAvoidingView>
         </SafeAreaView>
     )
 }
@@ -87,6 +137,6 @@ const styles = StyleSheet.create({
         width: '90%',
         alignSelf: 'center',
         borderRadius: 10,
-        marginTop: 20,
+        marginTop: 'auto',
     }
 })

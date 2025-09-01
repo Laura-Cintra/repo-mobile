@@ -5,10 +5,13 @@ import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../services/firebaseConfig';
+import { useTheme } from '../src/context/ThemeContext';
 
 export default function LoginScreen() {
-  // Estados para armazenar os valores digitados
 
+  const {colors} = useTheme();
+
+  // Estados para armazenar os valores digitados
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
 
@@ -67,8 +70,8 @@ export default function LoginScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.titulo}>Realizar login</Text>
+    <View style={[styles.container,{backgroundColor:colors.background}]}>
+      <Text style={[styles.titulo,{color:colors.text}]}>Realizar login</Text>
 
 
       {/* Campo Email */}

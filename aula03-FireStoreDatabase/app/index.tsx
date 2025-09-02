@@ -4,11 +4,17 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'reac
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '../services/firebaseConfig';
+import { auth } from '../src/services/firebaseConfig';
 import { useTheme } from '../src/context/ThemeContext';
+import { useTranslation } from 'react-i18next';
+import ThemeToggleButton from '../src/components/ThemeToggleButton';
 
 export default function LoginScreen() {
+  
+  // Hook do i18next, que fornece a função t, para buscar e traduzir para o idioma atual
+  const {t, i18n} = useTranslation();
 
+  // Hook do tema da aplicação
   const {colors} = useTheme();
 
   // Estados para armazenar os valores digitados
@@ -69,16 +75,33 @@ export default function LoginScreen() {
         alert("Erro ao enviar email. Verifique se o email está correto.")
   }
 
+  // Função para alterar o idioma
+  const mudarIdioma = (lang: string) => {
+    i18n.changeLanguage(lang)
+  }
+
   return (
     <View style={[styles.container,{backgroundColor:colors.background}]}>
-      <Text style={[styles.titulo,{color:colors.text}]}>Realizar login</Text>
+      
+      <ThemeToggleButton/>
+      
+      <View style={styles.langContainer}>
+        <TouchableOpacity onPress={() => mudarIdioma('pt')}>
+          <Text style={[styles.langText, {color: colors.text}]}>PT</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity onPress={() => mudarIdioma('eng')}>
+          <Text style={[styles.langText, {color: colors.text}]}>EN</Text>
+        </TouchableOpacity>
+      </View>
 
+      <Text style={[styles.titulo,{color:colors.text}]}>{t("login")}</Text>
 
       {/* Campo Email */}
       <TextInput
-        style={styles.input}
+        style={[styles.input, {backgroundColor: colors.input, color:colors.inputText}]}
         placeholder="E-mail"
-        placeholderTextColor="#aaa"
+        placeholderTextColor={colors.inputText}
         keyboardType="email-address"
         autoCapitalize="none"
         value={email}
@@ -87,9 +110,9 @@ export default function LoginScreen() {
 
       {/* Campo Senha */}
       <TextInput
-        style={styles.input}
-        placeholder="Senha"
-        placeholderTextColor="#aaa"
+        style={[styles.input, {backgroundColor: colors.input, color:colors.inputText}]}
+        placeholder={t('password')}
+        placeholderTextColor={colors.inputText}
         secureTextEntry
         value={senha}
         onChangeText={setSenha}
@@ -100,10 +123,10 @@ export default function LoginScreen() {
         <Text style={styles.textoBotao}>Login</Text>
       </TouchableOpacity>
 
-      <Link href="CadastrarScreen" style={{marginTop:20,color:'white',marginLeft:150}}>Cadastre-se</Link>
+      <Link href="CadastrarScreen" style={[{marginTop:20,color:'white',marginLeft:150}, {color: colors.text}]}>Cadastre-se</Link>
       
       {/* Botão */}
-      <Text style={{color: 'white', justifyContent: 'center', marginLeft: 130, cursor: 'pointer'}} onPress={esqueceuSenha}>Esqueceu a senha</Text>
+      <Text style={[{color: 'white', justifyContent: 'center', marginLeft: 130, cursor: 'pointer'}, {color: colors.text}]} onPress={esqueceuSenha}>Esqueceu a senha</Text>
     </View>
   );
 }
@@ -115,6 +138,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#121212',
     justifyContent: 'center',
     padding: 20,
+  },
+  langContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 5,
+    justifyContent: 'flex-end',
+    padding: 20,
+  },
+  langText: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    margin: 2
   },
   titulo: {
     fontSize: 28,

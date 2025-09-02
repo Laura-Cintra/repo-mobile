@@ -5,8 +5,8 @@ import { useRouter } from "expo-router";
 
 import { deleteUser } from "firebase/auth";
 import { useEffect, useState } from "react";
-import { auth, collection, addDoc, db, getDocs } from "../services/firebaseConfig";
-import ItemLoja from "./components/ItemLoja";
+import { auth, collection, addDoc, db, getDocs } from "../src/services/firebaseConfig";
+import ItemLoja from "../src/components/ItemLoja";
 import ThemeToggleButton from "../src/components/ThemeToggleButton";
 import { useTheme } from "../src/context/ThemeContext";
 

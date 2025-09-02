@@ -1,7 +1,7 @@
 import { StyleSheet, View, Text, Pressable, Alert } from "react-native";
 import { AntDesign, MaterialIcons } from '@expo/vector-icons'
 import { useEffect, useState } from "react";
-import { doc, updateDoc, db, deleteDoc } from '../../services/firebaseConfig'
+import { doc, updateDoc, db, deleteDoc } from '../services/firebaseConfig'
 
 export default function ItemLoja(props: any){
     const[ isChecked, setIsChecked ] = useState(props.isChecked)

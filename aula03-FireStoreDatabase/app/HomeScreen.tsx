@@ -9,6 +9,18 @@ import { auth, collection, addDoc, db, getDocs } from "../src/services/firebaseC
 import ItemLoja from "../src/components/ItemLoja";
 import ThemeToggleButton from "../src/components/ThemeToggleButton";
 import { useTheme } from "../src/context/ThemeContext";
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+
+// Configuração global das notificações no foreground
+Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+        shouldShowBanner: true, // exibe o banner da notificação
+        shouldShowList: true, // exibe o histórico
+        shouldPlaySound: true, //toca som
+        shouldSetBadge: false //não altera o badge do app
+    })
+})
 
 export default function HomeScreen() {
     const {colors} = useTheme()//Obtenho a paleta de cores(dark ou light)
@@ -86,9 +98,43 @@ export default function HomeScreen() {
         }
     }
 
+    const dispararNotificacao = async() => { // notificação local
+        await Notifications.scheduleNotificationAsync({
+            content:{
+                title: "Promoções disponíveis", // título da notificação
+                body: "Não perca nossas promoções do dia 08/09/2025"// corpo da notificação
+            },
+            trigger:{
+                type:"timeInterval", //Tipo do trigger: Intervalo de tempo
+                seconds:2, // aguarda 02 segundos antes de disparar
+                repeats:false, //não repete
+            } as Notifications.TimeIntervalTriggerInput // cast para o tipo correto
+        })
+    }
+
     useEffect(()=>{
         buscarItems()
     },[listaItems])
+
+    useEffect(()=>{
+        (async()=>{
+            if (Device.isDevice){
+            // Verificar se já tem de permisão de notificação
+            const{status:existingStatus} = await Notifications.getPermissionsAsync()
+            let finalStatus = existingStatus
+
+            // Se não tiver permissão, solicita ao usuário
+            if(existingStatus!=="granted"){
+                const {status} = await Notifications.requestPermissionsAsync()
+                finalStatus = status
+            }
+
+            // Se ainda não foi permitido o uso das notificações
+            if(finalStatus!=="granted"){
+            alert("Permissão para notificação não concedida")
+           }
+        }})()
+    },[])
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -103,6 +149,7 @@ export default function HomeScreen() {
             <Button title="Sair da Conta" onPress={realizarLogoff}/>
             <Button title="Exluir conta" color='red' onPress={excluirConta}/>
             <Button title="Alterar Senha" onPress={() => router.push("/AlterarSenha")}/>
+            <Button title="Enviar notificação" color='purple' onPress={dispararNotificacao} />
 
             {listaItems.length<=0?(
                 <ActivityIndicator />

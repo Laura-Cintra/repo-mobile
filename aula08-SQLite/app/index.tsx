@@ -1,7 +1,7 @@
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
-import { Button, FlatList, StyleSheet, Text, View } from "react-native";
-import { getNotes } from "../src/db/notes";
+import { Alert, Button, FlatList, StyleSheet, Text, View } from "react-native";
+import { getNotes, deleteNote } from "../src/db/notes";
 
 export default function HomeScreen() {
   const [ notes, setNotes ] = useState<any[]>([]) // Estado será para armazenar todas as notas
@@ -13,6 +13,38 @@ export default function HomeScreen() {
       setNotes(getNotes())// Carrega as notas do banco
     },[])
   )
+
+  // Função para deletar a nota
+  function handleDelete(id:number){
+    Alert.alert(
+    "Confirmar Exclusão",
+    "Tem certeza que deseja excluir esta nota?",
+      [
+        { 
+          text: "Cancelar", 
+          style: "cancel" 
+        },
+        { 
+          text: "Excluir", 
+          style: "destructive", 
+          onPress: async () => {
+            try {
+              deleteNote(id) // Deleta do banco de dados SQLite
+              
+              setNotes(getNotes()) // Atualiza a lista sem a nota que foi removida na linha acima 
+              
+              // Exibe uma mensagem de sucesso
+              Alert.alert("Nota Excluída", "A nota foi excluída com sucesso!");
+            } catch (error) {
+              console.log("Erro ao excluir a nota: ", error);
+              Alert.alert("Erro", "Não foi possível excluir a nota.");
+            }
+          }
+        }
+      ]
+    );
+  }
+
   return (
     <View
       style={styles.container}
@@ -21,6 +53,7 @@ export default function HomeScreen() {
       
       <FlatList 
         data={notes}
+        keyExtractor={item=>item.id.toString()}
         renderItem={({item})=>(
           <View
             style={{
@@ -29,7 +62,22 @@ export default function HomeScreen() {
               marginBottom:5
             }}
           > 
-            <Text>{item.title}</Text>
+            <Text style={{fontWeight:'bold'}}>{item.title}</Text>
+            <Text>{item.content}</Text>
+
+            <View style={{flexDirection:'row',gap:5,marginTop:5}}>
+              {/* Botão Editar */}
+              <View style={{width:100}}>
+                <Button
+                  title="Editar"
+                  onPress={()=>router.push(`/edit/${item.id}`)}
+                />
+              </View>
+              {/* Botão Deletar */}
+              <View style={{width:100}}>
+                <Button title="Deletar" color="#bb0c0cff" onPress={()=>handleDelete(item.id)}/>
+              </View>
+            </View>
           </View>
         )}
       />

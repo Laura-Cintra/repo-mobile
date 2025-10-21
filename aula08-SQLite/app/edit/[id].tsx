@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Alert, Button, TextInput, View } from 'react-native'
-
+import { MotiView } from "moti";
 import { useLocalSearchParams, useRouter } from 'expo-router'
 
 // Importando fuções do banco SQLite
@@ -54,7 +54,12 @@ export default function EditNoteScreen() {
     }
     // Renderiza a interface
     return (
-        <View style={{ flex: 1, padding: 20 }}>
+        <MotiView 
+            from={{opacity: 0, translateY: 40}}
+            animate={{opacity: 1, translateY: 0}}
+            transition={{type: 'timing', duration: 500}}
+            style={{flex: 1, padding: 20}}
+        >
             <TextInput
                 placeholder="Título"
                 value={title}
@@ -75,7 +80,17 @@ export default function EditNoteScreen() {
                     marginBottom: 10
                 }}
             />
-            <Button title="ATUALIZAR NOTA" onPress={handleUpdate} />
-        </View>
+            <MotiView
+                from={{scale: 1}}
+                animate={{scale: 1.05}}
+                transition={{
+                    loop: true, 
+                    type: 'timing', 
+                    duration: 1000
+                }}
+            >
+                <Button title="ATUALIZAR NOTA" onPress={handleUpdate} />
+            </MotiView>
+        </MotiView>
     )
 }

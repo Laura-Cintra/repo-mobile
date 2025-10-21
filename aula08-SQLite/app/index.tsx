@@ -2,6 +2,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { Alert, Button, FlatList, StyleSheet, Text, View } from "react-native";
 import { getNotes, deleteNote } from "../src/db/notes";
+import { MotiView, MotiText } from "moti";
 
 export default function HomeScreen() {
   const [ notes, setNotes ] = useState<any[]>([]) // Estado será para armazenar todas as notas
@@ -54,15 +55,26 @@ export default function HomeScreen() {
       <FlatList 
         data={notes}
         keyExtractor={item=>item.id.toString()}
-        renderItem={({item})=>(
-          <View
+        renderItem={({item, index})=>(
+          <MotiView
+            from={{opacity: 0, translateY: 20}}
+            animate={{opacity: 1, translateY: 0}}
+            transition={{delay: index * 250}}
+
             style={{
               borderBottomWidth:1,
               padding:10,
               marginBottom:5
             }}
           > 
-            <Text style={{fontWeight:'bold'}}>{item.title}</Text>
+            <MotiText 
+              from={{scale: 0.90}}
+              animate={{scale: 1}}
+              transition={{type: "timing", duration: 300}}
+              style={{fontWeight:'bold'}}
+            >
+              {item.title}
+            </MotiText>
             <Text>{item.content}</Text>
 
             <View style={{flexDirection:'row',gap:5,marginTop:5}}>
@@ -78,7 +90,7 @@ export default function HomeScreen() {
                 <Button title="Deletar" color="#bb0c0cff" onPress={()=>handleDelete(item.id)}/>
               </View>
             </View>
-          </View>
+          </MotiView>
         )}
       />
     </View>

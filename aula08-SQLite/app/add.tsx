@@ -1,12 +1,14 @@
-import { View,TextInput,Button,Alert } from "react-native";
+import { View, TextInput,Button,Alert } from "react-native";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { addNote } from "../src/db/notes";
-import { MotiView, MotiText } from "moti";
+import { MotiView } from "moti";
+import { generateTitleFromContentHF } from "@/src/ia/generateTitleHF";
 
 export default function AddNoteScreen(){
     const[ title, setTitle ] = useState("") // Estado do título
     const[ content, setContent ] = useState("") // Estado do conteúdo
+    const[ loading, setLoading ] = useState(false) // Estado de loading da IA
     const router = useRouter()// Hook para navegação
 
     // Função chamada ao pressionar "Salvar"
@@ -17,6 +19,20 @@ export default function AddNoteScreen(){
         }
         addNote(title,content) // Adiciona no banco
         router.back() // Volta para a tela HomeScreen
+    }
+
+    // Função para gerar o título com IA
+    async function handleGenerateTitle() {
+        if(!content.trim()){
+            Alert.alert("Anteção","Digite algo no conteúdo antes de gerar o título.")
+            return
+        }
+        setLoading(true)
+        const generated = await generateTitleFromContentHF(content)
+        if(generated){
+            setTitle(generated)
+            setLoading(false)
+        }
     }
 
     return(
@@ -56,16 +72,36 @@ export default function AddNoteScreen(){
                     }}
                 />
             </MotiView>
+            
             <MotiView
-                from={{scale: 1}}
-                animate={{scale: 1.05}}
+                style={{marginBottom:10}}
+                from={{opacity:0.8,scale:1}}
+                animate={{opacity:1,scale:1.05}}
                 transition={{
-                    loop: true, 
-                    type: 'timing', 
-                    duration: 1000
+                    loop:true,
+                    type:'timing',
+                    duration:1000
                 }}
             >
-                <Button title="SALVAR" onPress={handleSave}/>
+                
+             <Button
+                title="Gerar Título com IA"
+                onPress={handleGenerateTitle}
+                disabled={loading}
+             />
+            </MotiView>
+
+            <MotiView
+                from={{opacity:0.8,scale:1}}
+                animate={{opacity:1,scale:1.05}}
+                transition={{
+                    loop:true,
+                    type:'timing',
+                    duration:1000
+                }}
+            >
+
+             <Button title="SALVAR" onPress={handleSave} color="red"/>
             </MotiView>
         </MotiView>
     )

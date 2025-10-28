@@ -20,10 +20,10 @@ export async function generateTitleFromContentHF(content:string) {
                 inputs:content,
                 // Parameters são configurações adicionais do modelo
                 parameters:{
-                    max_length: 20,      //Tamanho máximo do título gerado
-                    min_length: 10,       //Tamanho mínimo
-                    do_sample: false,    //caso true, gera variações aleatórias
-                    early_stopping: true //Encerra geração assim que o modelo achar adequado.
+                    max_length: 20,       // Tamanho máximo do título gerado
+                    min_length: 10,       // Tamanho mínimo
+                    do_sample: false,    // caso true, gera variações aleatórias
+                    early_stopping: true // Encerra geração assim que o modelo achar adequado.
                 }
             },
             {
